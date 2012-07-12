@@ -1,0 +1,65 @@
+# 
+# Autoconf macros for trackfgp configure script
+# by Paul Kelly December 2008
+# based on the GRASS configure script
+# Use autoconf version 2.64 or 2.65
+#
+
+# Turn off annoying/confusing caching
+define([AC_CACHE_LOAD], )
+define([AC_CACHE_SAVE], )
+define([AC_CACHE_VAL], [
+$2
+])
+
+# Initial configuration
+AC_INIT(configure.in)
+AC_PREREQ(2.13)
+AC_PREFIX_DEFAULT(/usr/local)
+
+# Register arguments that the script will accept
+
+LOC_ARG_WITH_INC(sndfile, libsndfile)
+LOC_ARG_WITH_LIB(sndfile, libsndfile)
+
+LOC_ARG_WITH_INC(cairo, Cairo)
+LOC_ARG_WITH_LIB(cairo, Cairo)
+
+# Check for some programs
+AC_PROG_CC
+AC_PROG_INSTALL
+
+
+# Check for zlib
+ZLIBINC=
+ZLIBLIB=
+
+# ZLIB includes directory
+LOC_CHECK_INC_PATH(sndfile,libsndfile,SNDFILEINC)  
+LOC_CHECK_INCLUDES(sndfile.h,libsndfile,$SNDFILEINC)
+
+# ZLIB library directory
+LOC_CHECK_LIB_PATH(sndfile,libsndfile,SNDFILELIB)
+LOC_CHECK_LIBS(sndfile,sf_open,libsndfile,$SNDFILELIB,SNDFILELIB)
+
+AC_SUBST(SNDFILEINC)
+AC_SUBST(SNDFILELIB)
+
+
+# Check for CAIRO
+CAIROINC=
+CAIROLIB=
+
+# Cairo includes directory
+LOC_CHECK_INC_PATH(cairo,Cairo,CAIROINC)  
+LOC_CHECK_INCLUDES(cairo.h,Cairo,$CAIROINC)
+
+# Cairo library directory
+LOC_CHECK_LIB_PATH(cairo,Cairo,CAIROLIB)
+LOC_CHECK_LIBS(cairo,cairo_image_surface_create,Cairo,$CAIROLIB,CAIROLIB)
+  
+AC_SUBST(CAIROINC)
+AC_SUBST(CAIROLIB)
+
+
+AC_OUTPUT(Makefile)

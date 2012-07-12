@@ -1,0 +1,85 @@
+audiograph
+==========
+
+Version 0.4, 18 June 2012
+Written by Paul Kelly
+Copyright (C) 2012 NP Broadcast Ltd.
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+
+Build Instructions
+------------------
+
+There are two required dependencies:
+
+* libsndfile
+  http://www.mega-nerd.com/libsndfile/
+  
+* Cairo
+  http://www.cairographics.org/
+
+These must be present and installed before this program can be built. An
+autoconf-based "configure script" is used to configure the locations of
+libraries and the optional dependencies. The usual options are accepted; the
+most relevant here being:
+
+  --with-sndfile-includes=DIRS
+                          libsndfile include files are in DIRS
+  --with-sndfile-libs=DIRS
+                          libsndfile library files are in DIRS
+  --with-cairo-includes=DIRS
+                          Cairo include files are in DIRS
+  --with-cairo-libs=DIRS  Cairo library files are in DIRS
+
+A typical configure line (Bourne shell syntax) might be:
+
+CFLAGS=-O3 LDFLAGS=-s ./configure --prefix=/usr --with-cairo-includes=/usr/include/cairo
+
+Then a simple "make" will compile the program. "make install" will install
+to the specified prefix.
+
+
+Usage
+-----
+
+audiograph <input.wav> <output.png> <width> <height> <rrggbb>
+
+ * <input.wav> may be any audio file supported by libsndfile, e.g. 
+   WAV, FLAC or Ogg Vorbis
+ * <width> and <height> should be integers
+ * <rrggbb> should be a HTML-style RGB colour triplet, i.e. three
+   hexadecimal values
+
+
+Overview
+--------
+
+This utility plots a graphical representation of the audio waveform
+contained in a given file, as a transparent PNG image with the
+specified width, height and foreground colour. If the input file
+contains stereo or multi-channel audio, it is downmixed to mono so
+that only one waveform is plotted. On systems that do not support PNG
+transparency, the background colour should appear as white.
+
+The waveform is scaled to fit within the specified output dimensions.
+Technically, it is plotted as a series of 1-pixel wide vertical lines
+with length determined by the biggest and smallest sample values
+encountered within the linearly scaled time period corresponding to
+the width of 1 pixel. A logarithmic scale is used for the y-axis (i.e.
+signal amplitude).
+
+The input file may be in any file format supported by the libsndfile
+library. WAV, FLAC and Ogg Vorbis are the most prominent of these but
+there are many others; see the libsndfile documentation for more
+details. A single dash "-" may be specified for the filename; in this 
+case the audio will be read from standard input, although it must
+still consist of a self-contained file supported by libsndfile.
+
+
+--
+paul@stjohnspoint.co.uk
+Berlin, June 2012.
