@@ -76,6 +76,11 @@ cairo_surface_t *graph_draw(struct graph *gr, int width, int height, double *col
     cairo_set_source_rgb(cr, colour[0], colour[1], colour[2]);
     cairo_set_line_width(cr, 1.0);
 
+    /* Draw initial horizontal line */
+    cairo_move_to(cr, 0.0, height / 2.0);
+    cairo_rel_line_to(cr, width, 0);
+    cairo_stroke(cr);
+
     /* Plot the samples as a verical line between min and max value for 
      * each pixel (with logarithmic scale) and return the surface */
     for(i = 0; i < width; i ++)
