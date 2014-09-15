@@ -24,7 +24,7 @@
 #include <cairo.h>
 
 #define PROG_NAME    "audiograph"
-#define PROG_VERSION "0.4"
+#define PROG_VERSION "0.6"
 
 #include "audiograph.h"
 
@@ -38,8 +38,6 @@ int main(int argc, char **argv)
     double colour[3];
 
     struct wav_file *wav;
-    float samples[CHUNK_SIZE];
-    int sample_count;
 
     struct graph *gr;
     cairo_surface_t *surface;
@@ -57,15 +55,40 @@ int main(int argc, char **argv)
     }
 
     /* Buffer all samples from input file. */
-    gr = graph_init();
-    while((sample_count = wav_read_samples(wav, samples, CHUNK_SIZE)) > 0)
-        graph_buffer_samples(gr, samples, sample_count);
+    if( !(gr = graph_init()))
+    {
+        fprintf(stderr, "Unable to initialise sample buffer\n");
+        return 1;
+    }
+    while(1)
+    {
+        float samples[CHUNK_SIZE];
+        int sample_count = wav_read_samples(wav, samples, CHUNK_SIZE);
+
+        if(sample_count < 0)
+        {
+            fprintf(stderr, "Error reading samples; out of memory?\n");
+            return 1;
+        }
+        else if(sample_count == 0) /* end of input */
+            break;
+
+        if(graph_buffer_samples(gr, samples, sample_count) < 0)
+        {
+            fprintf(stderr, "Error buffering samples; out of memory?\n");
+            return 1;
+        }
+    }
 
     /* Close input file */
     wav_close(wav);
 
     /* Draw graph and output to PNG file using Cairo */
-    surface = graph_draw(gr, width, height, colour);
+    if( !(surface = graph_draw(gr, width, height, colour)))
+    {
+        fprintf(stderr, "Error initialising Cairo; out of memory?\n");
+        return 1;
+    }
     if(cairo_surface_write_to_png(surface, argv[2]) != CAIRO_STATUS_SUCCESS)
     {
         fprintf(stderr, "Error writing graph to PNG file\n");

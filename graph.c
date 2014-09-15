@@ -37,18 +37,19 @@ struct graph *graph_init(void)
     return gr;
 }
 
-void graph_buffer_samples(struct graph *gr, float *samples, int num_samples)
+int graph_buffer_samples(struct graph *gr, float *samples, int num_samples)
 {
     if(gr->sample_count + num_samples > gr->max_samples)
     {
         gr->max_samples += (num_samples + 100000);
-        gr->buff = realloc(gr->buff, gr->max_samples * sizeof(float));
+        if( !(gr->buff = realloc(gr->buff, gr->max_samples * sizeof(float))))
+            return -1;
     }
 
     memcpy(gr->buff+gr->sample_count, samples, num_samples * sizeof(float));
     gr->sample_count += num_samples;
 
-    return;
+    return num_samples;
 }
 
 /* Helper function for calculating logarithmetic vertical scale */
@@ -68,7 +69,11 @@ cairo_surface_t *graph_draw(struct graph *gr, int width, int height, double *col
 
     /* Create Cairo surface and set background as transparent */
     surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
+    if(cairo_surface_status(surface) != CAIRO_STATUS_SUCCESS)
+        return NULL;
     cr = cairo_create(surface);
+    if(cairo_status(cr) != CAIRO_STATUS_SUCCESS)
+        return NULL;
     cairo_set_source_rgba(cr, 1.0, 1.0, 1.0, 0.0); /* technically white, but transparent */
     cairo_paint(cr);
 

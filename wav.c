@@ -33,7 +33,10 @@ struct wav_file
 
 struct wav_file *wav_open(const char *filename)
 {
-    struct wav_file *wav = calloc(1, sizeof(struct wav_file));
+    struct wav_file *wav;
+
+    if( !(wav = calloc(1, sizeof(struct wav_file))))
+        return NULL;
 
     wav->file_info.format = 0;
 
@@ -42,7 +45,7 @@ struct wav_file *wav_open(const char *filename)
     else
         wav->file_handle = sf_open(filename, SFM_READ, &wav->file_info);
 
-    if(!wav->file_handle)
+    if( !wav->file_handle)
     {
         free(wav);
         return NULL;
@@ -63,7 +66,8 @@ int wav_read_samples(struct wav_file *wav, float *buff, int count)
     if(wav->buff_size < count * wav->file_info.channels)
     {
         wav->buff_size = count * wav->file_info.channels;
-        wav->raw_buff = realloc(wav->raw_buff, wav->buff_size * sizeof(float));
+        if( !(wav->raw_buff = realloc(wav->raw_buff, wav->buff_size * sizeof(float))))
+            return -1;
     }
 
     /* ...and read samples for all channels interleaved, then convert to mono. */

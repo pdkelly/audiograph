@@ -49,7 +49,7 @@ struct graph *graph_init(void);
 
 /* Buffer a number of mono floating point audio samples 
  * in the range -1.0 to 1.0. */
-void graph_buffer_samples(struct graph *, float *, int);
+int graph_buffer_samples(struct graph *, float *, int);
 
 /* Create a visualisation, using Cairo, of the samples buffered so
  * far. Graph will have dimensions of the given width and height;
